@@ -24,39 +24,80 @@ public class ConsoleRenderer implements Renderer {
 
     @Override
     public String render(Maze maze) {
-        StringBuilder sb = new StringBuilder();
-        Cell[][] grid = maze.getGrid();
-        for (int row = 0; row < maze.getHeight(); row++) {
-            for (int col = 0; col < maze.getWidth(); col++) {
-                Cell cell = grid[row][col];
-                sb.append(getEmojiForCell(cell));
-            }
-            sb.append("\n");
-        }
-        return sb.toString();
+        return renderMaze(maze, null, null, null);
     }
 
     @Override
     public String render(Maze maze, List<Coordinate> path) {
+        return renderMaze(maze, path, null, null);
+    }
+
+    public String renderWithLabels(Maze maze) {
+        return renderMaze(maze, null, null, null, true);
+    }
+
+    public String renderWithPoints(Maze maze, Coordinate start, Coordinate end) {
+        return renderMaze(maze, null, start, end);
+    }
+
+    public String renderWithPathAndPoints(Maze maze, List<Coordinate> path, Coordinate start, Coordinate end) {
+        return renderMaze(maze, path, start, end);
+    }
+
+    private String renderMaze(Maze maze, List<Coordinate> path, Coordinate start, Coordinate end) {
+        return renderMaze(maze, path, start, end, false);
+    }
+
+    private String renderMaze(Maze maze, List<Coordinate> path, Coordinate start, Coordinate end, boolean showLabels) {
         StringBuilder sb = new StringBuilder();
         Cell[][] grid = maze.getGrid();
-        boolean[][] pathMap = new boolean[maze.getHeight()][maze.getWidth()];
-        for (Coordinate coord : path) {
-            pathMap[coord.row()][coord.col()] = true;
+        boolean[][] pathMap = createPathMap(maze, path);
+        int height = maze.getHeight();
+        int width = maze.getWidth();
+
+        int maxRowLabel = height - 1;
+        int maxRowDigits = String.valueOf(maxRowLabel).length();
+        int rowLabelWidth = Math.max(maxRowDigits, 2);
+
+        if (showLabels) {
+            sb.append(formatColumnLabels(width, rowLabelWidth));
         }
 
-        for (int row = 0; row < maze.getHeight(); row++) {
-            for (int col = 0; col < maze.getWidth(); col++) {
-                if (pathMap[row][col]) {
-                    sb.append(PATH_EMOJI);
-                } else {
-                    Cell cell = grid[row][col];
-                    sb.append(getEmojiForCell(cell));
-                }
+        for (int row = 0; row < height; row++) {
+            if (showLabels) {
+                sb.append(String.format("%" + rowLabelWidth + "d ", row));
+            }
+            for (int col = 0; col < width; col++) {
+                sb.append(getCellRepresentation(grid[row][col], pathMap[row][col], start, end, row, col));
+                sb.append(" ");
             }
             sb.append("\n");
         }
+
         return sb.toString();
+    }
+
+    private boolean[][] createPathMap(Maze maze, List<Coordinate> path) {
+        boolean[][] pathMap = new boolean[maze.getHeight()][maze.getWidth()];
+        if (path != null) {
+            for (Coordinate coord : path) {
+                pathMap[coord.row()][coord.col()] = true;
+            }
+        }
+        return pathMap;
+    }
+
+    private String getCellRepresentation(Cell cell, boolean isOnPath, Coordinate start, Coordinate end,
+        int row, int col) {
+        if (start != null && row == start.row() && col == start.col()) {
+            return START_EMOJI;
+        } else if (end != null && row == end.row() && col == end.col()) {
+            return END_EMOJI;
+        } else if (isOnPath) {
+            return PATH_EMOJI;
+        } else {
+            return getEmojiForCell(cell);
+        }
     }
 
     private String getEmojiForCell(Cell cell) {
@@ -64,104 +105,13 @@ public class ConsoleRenderer implements Renderer {
             return WALL_EMOJI;
         } else {
             return switch (cell.getSurface()) {
-                case SWAMP -> SWAMP_EMOJI;   // Болото
-                case SAND -> SAND_EMOJI;     // Песок
-                case COIN -> COIN_EMOJI;     // Монетка
-                case ROAD -> ROAD_EMOJI;     // Дорога
-                default -> PASSAGE_EMOJI;    // Обычный проход
+                case SWAMP -> SWAMP_EMOJI;
+                case SAND -> SAND_EMOJI;
+                case COIN -> COIN_EMOJI;
+                case ROAD -> ROAD_EMOJI;
+                default -> PASSAGE_EMOJI;
             };
         }
-    }
-
-    public String renderWithLabels(Maze maze) {
-        StringBuilder sb = new StringBuilder();
-        int height = maze.getHeight();
-        int width = maze.getWidth();
-        Cell[][] grid = maze.getGrid();
-
-        int maxRowLabel = height - 1;
-        int maxRowDigits = String.valueOf(maxRowLabel).length();
-        int rowLabelWidth = Math.max(maxRowDigits, 2);
-
-        sb.append(formatColumnLabels(width, rowLabelWidth));
-
-        for (int row = 0; row < height; row++) {
-            sb.append(String.format("%" + rowLabelWidth + "d ", row));
-            for (int col = 0; col < width; col++) {
-                Cell cell = grid[row][col];
-                sb.append(getEmojiForCell(cell));
-                sb.append(" ");
-            }
-            sb.append("\n");
-        }
-        return sb.toString();
-    }
-
-    public String renderWithPoints(Maze maze, Coordinate start, Coordinate end) {
-        StringBuilder sb = new StringBuilder();
-        int height = maze.getHeight();
-        int width = maze.getWidth();
-        Cell[][] grid = maze.getGrid();
-
-        int maxRowLabel = height - 1;
-        int maxRowDigits = String.valueOf(maxRowLabel).length();
-        int rowLabelWidth = Math.max(maxRowDigits, 2);
-
-        sb.append(formatColumnLabels(width, rowLabelWidth));
-
-        for (int row = 0; row < height; row++) {
-            sb.append(String.format("%" + rowLabelWidth + "d ", row));
-            for (int col = 0; col < width; col++) {
-                if (row == start.row() && col == start.col()) {
-                    sb.append(START_EMOJI);
-                } else if (row == end.row() && col == end.col()) {
-                    sb.append(END_EMOJI);
-                } else {
-                    Cell cell = grid[row][col];
-                    sb.append(getEmojiForCell(cell));
-                }
-                sb.append(" ");
-            }
-            sb.append("\n");
-        }
-        return sb.toString();
-    }
-
-    public String renderWithPathAndPoints(Maze maze, List<Coordinate> path, Coordinate start, Coordinate end) {
-        StringBuilder sb = new StringBuilder();
-        int height = maze.getHeight();
-        int width = maze.getWidth();
-        Cell[][] grid = maze.getGrid();
-
-        boolean[][] pathMap = new boolean[height][width];
-        for (Coordinate coord : path) {
-            pathMap[coord.row()][coord.col()] = true;
-        }
-
-        int maxRowLabel = height - 1;
-        int maxRowDigits = String.valueOf(maxRowLabel).length();
-        int rowLabelWidth = Math.max(maxRowDigits, 2);
-
-        sb.append(formatColumnLabels(width, rowLabelWidth));
-
-        for (int row = 0; row < height; row++) {
-            sb.append(String.format("%" + rowLabelWidth + "d ", row));
-            for (int col = 0; col < width; col++) {
-                if (row == start.row() && col == start.col()) {
-                    sb.append(START_EMOJI);
-                } else if (row == end.row() && col == end.col()) {
-                    sb.append(END_EMOJI);
-                } else if (pathMap[row][col]) {
-                    sb.append(PATH_EMOJI);
-                } else {
-                    Cell cell = grid[row][col];
-                    sb.append(getEmojiForCell(cell));
-                }
-                sb.append(" ");
-            }
-            sb.append("\n");
-        }
-        return sb.toString();
     }
 
     private String formatColumnLabels(int width, int rowLabelWidth) {
@@ -169,8 +119,7 @@ public class ConsoleRenderer implements Renderer {
         sb.append(" ".repeat(rowLabelWidth + 1));
         for (int col = 0; col < width; col++) {
             sb.append(String.format("%2d", col));
-            if (col % SPACING_FACTOR == FIRST_SPACING_POSITION
-                || col % SPACING_FACTOR == SECOND_SPACING_POSITION) {
+            if (col % SPACING_FACTOR == FIRST_SPACING_POSITION || col % SPACING_FACTOR == SECOND_SPACING_POSITION) {
                 sb.append("  ");
             } else {
                 sb.append(" ");
