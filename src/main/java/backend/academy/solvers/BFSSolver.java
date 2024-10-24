@@ -4,7 +4,7 @@ import backend.academy.interfaces.Solver;
 import backend.academy.models.Cell;
 import backend.academy.models.Coordinate;
 import backend.academy.models.Maze;
-
+import backend.academy.models.SurfaceType;
 import java.util.*;
 
 public class BFSSolver implements Solver {
@@ -20,7 +20,7 @@ public class BFSSolver implements Solver {
         queue.add(start);
         visited[start.row()][start.col()] = true;
 
-        int[][] directions = { {-1, 0}, {1, 0}, {0, -1}, {0, 1} };
+        int[][] directions = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
 
         while (!queue.isEmpty()) {
             Coordinate current = queue.poll();
@@ -59,7 +59,10 @@ public class BFSSolver implements Solver {
             return List.of();
         }
         path.add(start);
-        Collections.reverse(path);
-        return path;
+        List<Coordinate> reversed = new ArrayList<>();
+        for (int i = path.size() - 1; i >= 0; i--) {
+            reversed.add(path.get(i));
+        }
+        return reversed;
     }
 }

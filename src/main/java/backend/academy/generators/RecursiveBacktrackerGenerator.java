@@ -4,6 +4,8 @@ import backend.academy.interfaces.Generator;
 import backend.academy.models.Cell;
 import backend.academy.models.Coordinate;
 import backend.academy.models.Maze;
+import backend.academy.models.SurfaceType;
+
 import java.util.*;
 
 public class RecursiveBacktrackerGenerator implements Generator {
@@ -18,7 +20,7 @@ public class RecursiveBacktrackerGenerator implements Generator {
         Stack<Coordinate> stack = new Stack<>();
         int startRow = 1;
         int startCol = 1;
-        maze.getGrid()[startRow][startCol] = new Cell(startRow, startCol, Cell.Type.PASSAGE);
+        maze.getGrid()[startRow][startCol] = new Cell(startRow, startCol, Cell.Type.PASSAGE, getRandomSurface());
         stack.push(new Coordinate(startRow, startCol));
 
         while (!stack.isEmpty()) {
@@ -28,7 +30,7 @@ public class RecursiveBacktrackerGenerator implements Generator {
             if (!neighbors.isEmpty()) {
                 Coordinate chosen = neighbors.get(random.nextInt(neighbors.size()));
                 removeWall(maze, current, chosen);
-                maze.getGrid()[chosen.row()][chosen.col()] = new Cell(chosen.row(), chosen.col(), Cell.Type.PASSAGE);
+                maze.getGrid()[chosen.row()][chosen.col()] = new Cell(chosen.row(), chosen.col(), Cell.Type.PASSAGE, getRandomSurface());
                 stack.push(chosen);
             } else {
                 stack.pop();
@@ -50,6 +52,7 @@ public class RecursiveBacktrackerGenerator implements Generator {
             }
         }
 
+        Collections.shuffle(neighbors, random);
         return neighbors;
     }
 
@@ -60,6 +63,21 @@ public class RecursiveBacktrackerGenerator implements Generator {
     private void removeWall(Maze maze, Coordinate current, Coordinate chosen) {
         int wallRow = (current.row() + chosen.row()) / 2;
         int wallCol = (current.col() + chosen.col()) / 2;
-        maze.getGrid()[wallRow][wallCol] = new Cell(wallRow, wallCol, Cell.Type.PASSAGE);
+        maze.getGrid()[wallRow][wallCol] = new Cell(wallRow, wallCol, Cell.Type.PASSAGE, getRandomSurface());
+    }
+
+    private SurfaceType getRandomSurface() {
+        int chance = random.nextInt(100);
+        if (chance < 5) {
+            return SurfaceType.SWAMP;
+        } else if (chance < 15) {
+            return SurfaceType.SAND;
+        } else if (chance < 20) {
+            return SurfaceType.COIN;
+        } else if (chance < 30) {
+            return SurfaceType.ROAD;
+        } else {
+            return SurfaceType.NORMAL;
+        }
     }
 }

@@ -4,7 +4,7 @@ import backend.academy.interfaces.Generator;
 import backend.academy.models.Cell;
 import backend.academy.models.Coordinate;
 import backend.academy.models.Maze;
-
+import backend.academy.models.SurfaceType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -22,7 +22,7 @@ public class PrimGenerator implements Generator {
 
         int startRow = 1;
         int startCol = 1;
-        maze.setCell(startRow, startCol, Cell.Type.PASSAGE);
+        maze.getGrid()[startRow][startCol] = new Cell(startRow, startCol, Cell.Type.PASSAGE, getRandomSurface());
 
         addWalls(maze, startRow, startCol, wallList);
 
@@ -45,8 +45,8 @@ public class PrimGenerator implements Generator {
             if (cell1InMaze ^ cell2InMaze) {
                 Coordinate newCell = cell1InMaze ? cell2 : cell1;
 
-                maze.setCell(wall.row(), wall.col(), Cell.Type.PASSAGE);
-                maze.setCell(newCell.row(), newCell.col(), Cell.Type.PASSAGE);
+                maze.getGrid()[wall.row()][wall.col()] = new Cell(wall.row(), wall.col(), Cell.Type.PASSAGE, getRandomSurface());
+                maze.getGrid()[newCell.row()][newCell.col()] = new Cell(newCell.row(), newCell.col(), Cell.Type.PASSAGE, getRandomSurface());
 
                 addWalls(maze, newCell.row(), newCell.col(), wallList);
             }
@@ -61,13 +61,12 @@ public class PrimGenerator implements Generator {
             int newRow = row + dir[0];
             int newCol = col + dir[1];
             if (isInBounds(maze, newRow, newCol) && maze.getGrid()[newRow][newCol].type() == Cell.Type.WALL) {
-                wallList.add(new Coordinate(newRow, newCol));
+                Coordinate wall = new Coordinate(newRow, newCol);
+                if (!wallList.contains(wall)) {
+                    wallList.add(wall);
+                }
             }
         }
-    }
-
-    private boolean isInBounds(Maze maze, int row, int col) {
-        return row > 0 && row < maze.getHeight() - 1 && col > 0 && col < maze.getWidth() - 1;
     }
 
     private List<Coordinate> getAdjacentCells(Maze maze, Coordinate wall) {
@@ -76,10 +75,33 @@ public class PrimGenerator implements Generator {
         for (int[] dir : directions) {
             int adjRow = wall.row() + dir[0];
             int adjCol = wall.col() + dir[1];
-            if (isInBounds(maze, adjRow, adjCol) && (adjRow % 2 != 0 && adjCol % 2 != 0)) {
+            if (isInBounds(maze, adjRow, adjCol) && isCell(wall, dir)) {
                 cells.add(new Coordinate(adjRow, adjCol));
             }
         }
         return cells;
+    }
+
+    private boolean isCell(Coordinate wall, int[] dir) {
+        return (wall.row() + dir[0]) % 2 != 0 && (wall.col() + dir[1]) % 2 != 0;
+    }
+
+    private boolean isInBounds(Maze maze, int row, int col) {
+        return row > 0 && row < maze.getHeight() - 1 && col > 0 && col < maze.getWidth() - 1;
+    }
+
+    private SurfaceType getRandomSurface() {
+        int chance = random.nextInt(100);
+        if (chance < 5) {
+            return SurfaceType.SWAMP;
+        } else if (chance < 15) {
+            return SurfaceType.SAND;
+        } else if (chance < 20) {
+            return SurfaceType.COIN;
+        } else if (chance < 30) {
+            return SurfaceType.ROAD;
+        } else {
+            return SurfaceType.NORMAL;
+        }
     }
 }
