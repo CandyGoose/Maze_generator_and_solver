@@ -1,5 +1,6 @@
 package backend.academy.generators;
 
+import backend.academy.interfaces.Generator;
 import backend.academy.models.Cell;
 import backend.academy.models.Coordinate;
 import backend.academy.models.Maze;
@@ -8,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class PrimGenerator {
+public class PrimGenerator implements Generator {
 
     private final Random random = new Random();
 
