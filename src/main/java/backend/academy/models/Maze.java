@@ -8,6 +8,12 @@ public final class Maze {
     private final Cell[][] grid;
     private final Random random = new Random();
 
+    private static final int SWAMP_CHANCE = 5;
+    private static final int SAND_CHANCE = 15;
+    private static final int COIN_CHANCE = 20;
+    private static final int ROAD_CHANCE = 30;
+    private static final int MAX_CHANCE = 100;
+
     public Maze(int height, int width) {
         this.height = height;
         this.width = width;
@@ -19,23 +25,21 @@ public final class Maze {
         }
     }
 
-    public void setPassageWithSurface(int row, int col) {
-        grid[row][col] = new Cell(row, col, Cell.Type.PASSAGE, getRandomSurface());
-    }
-
     private SurfaceType getRandomSurface() {
-        int chance = random.nextInt(100);
-        if (chance < 5) {
-            return SurfaceType.SWAMP;
-        } else if (chance < 15) {
-            return SurfaceType.SAND;
-        } else if (chance < 20) {
-            return SurfaceType.COIN;
-        } else if (chance < 30) {
-            return SurfaceType.ROAD;
+        int chance = random.nextInt(MAX_CHANCE);
+        SurfaceType surfaceType;
+        if (chance < SWAMP_CHANCE) {
+            surfaceType = SurfaceType.SWAMP;
+        } else if (chance < SAND_CHANCE) {
+            surfaceType = SurfaceType.SAND;
+        } else if (chance < COIN_CHANCE) {
+            surfaceType = SurfaceType.COIN;
+        } else if (chance < ROAD_CHANCE) {
+            surfaceType = SurfaceType.ROAD;
         } else {
-            return SurfaceType.NORMAL;
+            surfaceType = SurfaceType.NORMAL;
         }
+        return surfaceType;
     }
 
     public int getHeight() {

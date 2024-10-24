@@ -4,7 +4,6 @@ import backend.academy.interfaces.Renderer;
 import backend.academy.models.Cell;
 import backend.academy.models.Coordinate;
 import backend.academy.models.Maze;
-import backend.academy.models.SurfaceType;
 import java.util.List;
 
 public class ConsoleRenderer implements Renderer {
@@ -18,6 +17,10 @@ public class ConsoleRenderer implements Renderer {
     private static final String SAND_EMOJI = "\uD83C\uDFDC\uFE0F"; // Песок
     private static final String COIN_EMOJI = "\uD83D\uDC8E";    // Монета
     private static final String ROAD_EMOJI = "\uD83D\uDE88";    // Дорога
+
+    private static final int FIRST_SPACING_POSITION = 2;
+    private static final int SECOND_SPACING_POSITION = 7;
+    private static final int SPACING_FACTOR = 10;
 
     @Override
     public String render(Maze maze) {
@@ -166,7 +169,8 @@ public class ConsoleRenderer implements Renderer {
         sb.append(" ".repeat(rowLabelWidth + 1));
         for (int col = 0; col < width; col++) {
             sb.append(String.format("%2d", col));
-            if (col % 10 == 2 || col % 10 == 7) {
+            if (col % SPACING_FACTOR == FIRST_SPACING_POSITION
+                || col % SPACING_FACTOR == SECOND_SPACING_POSITION) {
                 sb.append("  ");
             } else {
                 sb.append(" ");

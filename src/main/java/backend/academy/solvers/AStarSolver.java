@@ -4,7 +4,15 @@ import backend.academy.interfaces.Solver;
 import backend.academy.models.Cell;
 import backend.academy.models.Coordinate;
 import backend.academy.models.Maze;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Set;
 
 public class AStarSolver implements Solver {
 
@@ -54,7 +62,7 @@ public class AStarSolver implements Solver {
 
     private List<Coordinate> getNeighbors(Maze maze, Coordinate coord) {
         List<Coordinate> neighbors = new ArrayList<>();
-        int[][] directions = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
+        int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
         for (int[] dir : directions) {
             int newRow = coord.row() + dir[0];
             int newCol = coord.col() + dir[1];
@@ -76,11 +84,14 @@ public class AStarSolver implements Solver {
 
     private List<Coordinate> reconstructPath(Map<Coordinate, Coordinate> cameFrom, Coordinate current) {
         List<Coordinate> path = new ArrayList<>();
-        path.add(current);
-        while (cameFrom.containsKey(current)) {
-            current = cameFrom.get(current);
-            path.add(current);
+        Coordinate step = current;
+        path.add(step);
+
+        while (cameFrom.containsKey(step)) {
+            step = cameFrom.get(step);
+            path.add(step);
         }
+
         Collections.reverse(path);
         return path;
     }

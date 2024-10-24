@@ -12,12 +12,18 @@ import java.util.Random;
 public class PrimGenerator implements Generator {
 
     private final Random random = new Random();
+    private static final int CHANCE_MAX = 100;
+    private static final int SWAMP_CHANCE = 5;
+    private static final int SAND_CHANCE = 15;
+    private static final int COIN_CHANCE = 20;
+    private static final int ROAD_CHANCE = 30;
 
+    @Override
     public Maze generate(int height, int width) {
-        if (height % 2 == 0) height += 1;
-        if (width % 2 == 0) width += 1;
+        int adjustedHeight = (height % 2 == 0) ? height + 1 : height;
+        int adjustedWidth = (width % 2 == 0) ? width + 1 : width;
 
-        Maze maze = new Maze(height, width);
+        Maze maze = new Maze(adjustedHeight, adjustedWidth);
         List<Coordinate> wallList = new ArrayList<>();
 
         int startRow = 1;
@@ -45,8 +51,10 @@ public class PrimGenerator implements Generator {
             if (cell1InMaze ^ cell2InMaze) {
                 Coordinate newCell = cell1InMaze ? cell2 : cell1;
 
-                maze.getGrid()[wall.row()][wall.col()] = new Cell(wall.row(), wall.col(), Cell.Type.PASSAGE, getRandomSurface());
-                maze.getGrid()[newCell.row()][newCell.col()] = new Cell(newCell.row(), newCell.col(), Cell.Type.PASSAGE, getRandomSurface());
+                maze.getGrid()[wall.row()][wall.col()] = new Cell(wall.row(), wall.col(),
+                    Cell.Type.PASSAGE, getRandomSurface());
+                maze.getGrid()[newCell.row()][newCell.col()] = new Cell(newCell.row(), newCell.col(),
+                    Cell.Type.PASSAGE, getRandomSurface());
 
                 addWalls(maze, newCell.row(), newCell.col(), wallList);
             }
@@ -56,7 +64,7 @@ public class PrimGenerator implements Generator {
     }
 
     private void addWalls(Maze maze, int row, int col, List<Coordinate> wallList) {
-        int[][] directions = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
+        int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
         for (int[] dir : directions) {
             int newRow = row + dir[0];
             int newCol = col + dir[1];
@@ -71,7 +79,7 @@ public class PrimGenerator implements Generator {
 
     private List<Coordinate> getAdjacentCells(Maze maze, Coordinate wall) {
         List<Coordinate> cells = new ArrayList<>();
-        int[][] directions = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
+        int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
         for (int[] dir : directions) {
             int adjRow = wall.row() + dir[0];
             int adjCol = wall.col() + dir[1];
@@ -87,21 +95,28 @@ public class PrimGenerator implements Generator {
     }
 
     private boolean isInBounds(Maze maze, int row, int col) {
-        return row > 0 && row < maze.getHeight() - 1 && col > 0 && col < maze.getWidth() - 1;
+        boolean isRowInBounds = row > 0 && row < maze.getHeight() - 1;
+        boolean isColInBounds = col > 0 && col < maze.getWidth() - 1;
+
+        return isRowInBounds && isColInBounds;
     }
 
     private SurfaceType getRandomSurface() {
-        int chance = random.nextInt(100);
-        if (chance < 5) {
-            return SurfaceType.SWAMP;
-        } else if (chance < 15) {
-            return SurfaceType.SAND;
-        } else if (chance < 20) {
-            return SurfaceType.COIN;
-        } else if (chance < 30) {
-            return SurfaceType.ROAD;
+        SurfaceType surfaceType;
+        int chance = random.nextInt(CHANCE_MAX);
+
+        if (chance < SWAMP_CHANCE) {
+            surfaceType = SurfaceType.SWAMP;
+        } else if (chance < SAND_CHANCE) {
+            surfaceType = SurfaceType.SAND;
+        } else if (chance < COIN_CHANCE) {
+            surfaceType = SurfaceType.COIN;
+        } else if (chance < ROAD_CHANCE) {
+            surfaceType = SurfaceType.ROAD;
         } else {
-            return SurfaceType.NORMAL;
+            surfaceType = SurfaceType.NORMAL;
         }
+
+        return surfaceType;
     }
 }
