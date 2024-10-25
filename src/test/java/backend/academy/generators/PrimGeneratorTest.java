@@ -1,6 +1,5 @@
 package backend.academy.generators;
 
-import backend.academy.generators.PrimGenerator;
 import backend.academy.models.Cell;
 import backend.academy.models.Maze;
 import org.junit.jupiter.api.Test;

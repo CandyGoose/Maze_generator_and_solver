@@ -37,8 +37,8 @@ public class Main {
         out.println("2 - Алгоритм Recursive Backtracker");
         int genChoice = readChoice(scanner, out, 1, 2);
         Generator generator = switch (genChoice) {
-            case 1 -> new RecursiveBacktrackerGenerator();
-            case 2 -> new PrimGenerator();
+            case 1 -> new PrimGenerator();
+            case 2 -> new RecursiveBacktrackerGenerator();
             default -> {
                 out.println("Неверный выбор. Используется Рекурсивный Обход.");
                 yield new RecursiveBacktrackerGenerator();

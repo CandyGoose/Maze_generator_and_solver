@@ -14,6 +14,8 @@ public final class Maze {
     private static final int ROAD_CHANCE = 30;
     private static final int MAX_CHANCE = 100;
 
+    private static final double CYCLE_CHANCE = 0.1;
+
     public Maze(int height, int width) {
         this.height = height;
         this.width = width;
@@ -25,9 +27,10 @@ public final class Maze {
         }
     }
 
-    private SurfaceType getRandomSurface() {
+    public SurfaceType getRandomSurface() {
         int chance = random.nextInt(MAX_CHANCE);
-        SurfaceType surfaceType;
+        SurfaceType surfaceType = SurfaceType.NORMAL;
+
         if (chance < SWAMP_CHANCE) {
             surfaceType = SurfaceType.SWAMP;
         } else if (chance < SAND_CHANCE) {
@@ -36,10 +39,53 @@ public final class Maze {
             surfaceType = SurfaceType.COIN;
         } else if (chance < ROAD_CHANCE) {
             surfaceType = SurfaceType.ROAD;
-        } else {
-            surfaceType = SurfaceType.NORMAL;
         }
+
         return surfaceType;
+    }
+
+    public void removeWall(Coordinate current, Coordinate chosen) {
+        int wallRow = (current.row() + chosen.row()) / 2;
+        int wallCol = (current.col() + chosen.col()) / 2;
+        grid[wallRow][wallCol] = new Cell(wallRow, wallCol, Cell.Type.PASSAGE, getRandomSurface());
+    }
+
+    public boolean isInBounds(int row, int col) {
+        return row > 0 && row < height - 1 && col > 0 && col < width - 1;
+    }
+
+    public void addCycles() {
+        for (int row = 1; row < height - 1; row++) {
+            for (int col = 1; col < width - 1; col++) {
+                if (isWallBetweenPassages(row, col) && shouldCreateCycle()) {
+                    if (canCreateCycle(row, col)) {
+                        grid[row][col] = new Cell(row, col, Cell.Type.PASSAGE, getRandomSurface());
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean isWallBetweenPassages(int row, int col) {
+        return grid[row][col].type() == Cell.Type.WALL
+            && ((row % 2 == 1 && col % 2 == 0) || (row % 2 == 0 && col % 2 == 1));
+    }
+
+    private boolean shouldCreateCycle() {
+        return random.nextDouble() < CYCLE_CHANCE;
+    }
+
+    private boolean canCreateCycle(int row, int col) {
+        int passages = 0;
+        int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+        for (int[] dir : directions) {
+            int newRow = row + dir[0];
+            int newCol = col + dir[1];
+            if (grid[newRow][newCol].type() == Cell.Type.PASSAGE) {
+                passages++;
+            }
+        }
+        return passages == 2;
     }
 
     public int getHeight() {
