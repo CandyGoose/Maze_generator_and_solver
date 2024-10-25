@@ -15,12 +15,21 @@ import java.util.List;
 import java.util.Scanner;
 import lombok.experimental.UtilityClass;
 
+/**
+ * Главный класс для запуска консольного приложения по генерации и решению лабиринтов.
+ * Позволяет пользователю генерировать лабиринты, выбирать начальные и конечные точки,
+ * и находить путь с помощью различных алгоритмов.
+ */
 @UtilityClass
 public class Main {
 
     private static final String INVALID_INPUT_MSG = "Неверный ввод. Введите число: ";
     private static final String CHOICE_PROMPT = "Выберите вариант от %d до %d: ";
 
+    /**
+     * Основной метод для запуска приложения. Включает ввод размеров лабиринта,
+     * выбор генератора и решателя, а также отображение лабиринта и найденного пути.
+     */
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         ConsoleRenderer renderer = new ConsoleRenderer();
@@ -33,6 +42,7 @@ public class Main {
         out.print("Введите ширину лабиринта (нечетное число, например 21): ");
         int width = readPositiveOddInt(scanner, out);
 
+        // Выбор алгоритма генерации лабиринта
         out.println("1 - Алгоритм Прима");
         out.println("2 - Алгоритм Recursive Backtracker");
         int genChoice = readChoice(scanner, out, 1, 2);
@@ -50,6 +60,7 @@ public class Main {
         out.println("Сгенерированный лабиринт:");
         out.println(renderer.renderWithLabels(maze));
 
+        // Ввод координат начальной и конечной точек
         out.println("Введите координаты точки А (начало):");
         Coordinate start = getCoordinate(scanner, maze, out);
         out.println("Введите координаты точки Б (конец):");
@@ -58,6 +69,7 @@ public class Main {
         out.println("Лабиринт с точками А и Б:");
         out.println(renderer.renderWithPoints(maze, start, end));
 
+        // Выбор алгоритма поиска пути
         out.println("Выберите алгоритм поиска пути:");
         out.println("1 - BFS (поиск в ширину)");
         out.println("2 - A* (A-star)");
@@ -74,6 +86,7 @@ public class Main {
 
         List<Coordinate> path = solver.solve(maze, start, end);
 
+        // Отображение найденного пути или сообщения об отсутствии пути
         if (path.isEmpty()) {
             out.println("Путь не найден.");
         } else {
@@ -84,6 +97,13 @@ public class Main {
         scanner.close();
     }
 
+    /**
+     * Считывает положительное нечетное целое число из консоли.
+     *
+     * @param scanner Scanner для ввода данных
+     * @param out поток для вывода сообщений
+     * @return введенное положительное нечетное число
+     */
     private static int readPositiveOddInt(Scanner scanner, PrintStream out) {
         int value;
         while (true) {
@@ -101,6 +121,15 @@ public class Main {
         return value;
     }
 
+    /**
+     * Считывает число из консоли в заданном диапазоне.
+     *
+     * @param scanner Scanner для ввода данных
+     * @param out поток для вывода сообщений
+     * @param min минимальное значение (включительно)
+     * @param max максимальное значение (включительно)
+     * @return выбранное число в диапазоне [min, max]
+     */
     private static int readChoice(Scanner scanner, PrintStream out, int min, int max) {
         int choice;
         while (true) {
@@ -118,6 +147,14 @@ public class Main {
         return choice;
     }
 
+    /**
+     * Считывает координаты, гарантируя, что выбранная точка является проходом.
+     *
+     * @param scanner Scanner для ввода данных
+     * @param maze лабиринт для проверки координат
+     * @param out поток для вывода сообщений
+     * @return координаты (строка, столбец) в виде объекта Coordinate
+     */
     private static Coordinate getCoordinate(Scanner scanner, Maze maze, PrintStream out) {
         int row;
         int col;
@@ -135,6 +172,15 @@ public class Main {
         return new Coordinate(row, col);
     }
 
+    /**
+     * Считывает координату строки или столбца в заданном диапазоне.
+     *
+     * @param scanner Scanner для ввода данных
+     * @param out поток для вывода сообщений
+     * @param min минимальное значение (включительно)
+     * @param max максимальное значение (включительно)
+     * @return выбранное значение координаты
+     */
     private static int readCoordinate(Scanner scanner, PrintStream out, int min, int max) {
         int value;
         while (true) {
