@@ -1,6 +1,6 @@
 package backend.academy.models;
 
-import java.util.Random;
+import backend.academy.utils.RandomUtils;
 
 /**
  * Лабиринт, состоящий из клеток. Содержит методы генерации и настройки лабиринта.
@@ -9,7 +9,6 @@ public final class Maze {
     private final int height;  // Высота лабиринта
     private final int width;   // Ширина лабиринта
     private final Cell[][] grid;  // Сетка клеток лабиринта
-    private final Random random = new Random();
 
     // Вероятности различных поверхностей
     private static final int SWAMP_CHANCE = 5;
@@ -42,7 +41,7 @@ public final class Maze {
      * @return случайный тип поверхности
      */
     public SurfaceType getRandomSurface() {
-        int chance = random.nextInt(MAX_CHANCE);
+        int chance = RandomUtils.nextInt(MAX_CHANCE);
         SurfaceType surfaceType = SurfaceType.NORMAL;
 
         if (chance < SWAMP_CHANCE) {
@@ -104,7 +103,7 @@ public final class Maze {
 
     // Определяет, должна ли стена быть пробита для создания цикла
     private boolean shouldCreateCycle() {
-        return random.nextDouble() < CYCLE_CHANCE;
+        return RandomUtils.chance(CYCLE_CHANCE);
     }
 
     // Проверяет, возможно ли создание цикла путем пробития стены

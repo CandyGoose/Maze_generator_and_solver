@@ -4,17 +4,15 @@ import backend.academy.interfaces.Generator;
 import backend.academy.models.Cell;
 import backend.academy.models.Coordinate;
 import backend.academy.models.Maze;
+import backend.academy.utils.RandomUtils;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Реализация алгоритма Прима для генерации лабиринта. Алгоритм создает лабиринт с единственным
  * путем между двумя любыми точками и возможностью добавления циклов.
  */
 public class PrimGenerator implements Generator {
-
-    private final Random random = new Random();
 
     /**
      * Генерирует лабиринт заданной высоты и ширины с использованием алгоритма Прима.
@@ -39,7 +37,7 @@ public class PrimGenerator implements Generator {
 
         // Основной цикл генерации
         while (!wallList.isEmpty()) {
-            int randIndex = random.nextInt(wallList.size());
+            int randIndex = RandomUtils.nextInt(wallList.size());
             Coordinate wall = wallList.remove(randIndex);
 
             // Получаем список клеток по обе стороны стены

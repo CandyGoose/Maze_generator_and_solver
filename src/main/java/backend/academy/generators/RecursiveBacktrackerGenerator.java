@@ -4,10 +4,9 @@ import backend.academy.interfaces.Generator;
 import backend.academy.models.Cell;
 import backend.academy.models.Coordinate;
 import backend.academy.models.Maze;
+import backend.academy.utils.RandomUtils;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 import java.util.Stack;
 
 /**
@@ -18,7 +17,6 @@ import java.util.Stack;
 public class RecursiveBacktrackerGenerator implements Generator {
 
     private static final int WALL_STEP = 2; // Шаг через стену для поиска соседних клеток
-    private final Random random = new Random();
 
     /**
      * Генерирует лабиринт заданной высоты и ширины.
@@ -46,7 +44,7 @@ public class RecursiveBacktrackerGenerator implements Generator {
 
             if (!neighbors.isEmpty()) {
                 // Выбираем случайного соседа и пробиваем стену
-                Coordinate chosen = neighbors.get(random.nextInt(neighbors.size()));
+                Coordinate chosen = neighbors.get(RandomUtils.nextInt(neighbors.size()));
                 maze.removeWall(current, chosen);
                 maze.getGrid()[chosen.row()][chosen.col()] = new Cell(chosen.row(), chosen.col(),
                     Cell.Type.PASSAGE, maze.getRandomSurface());
@@ -81,7 +79,7 @@ public class RecursiveBacktrackerGenerator implements Generator {
             }
         }
 
-        Collections.shuffle(neighbors, random);
+        RandomUtils.shuffleList(neighbors);
         return neighbors;
     }
 }
